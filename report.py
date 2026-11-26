@@ -1,13 +1,3 @@
-"""
-report.py
----------
-Builds a downloadable summary report (Markdown text) combining header
-metadata, key statistics, derived indices, and the automatic insight
-paragraphs from interpretation.py. Returned as a plain string so app.py can
-offer it as a `st.download_button` without any extra file-format
-dependency (Markdown renders fine as plain text too).
-"""
-
 from __future__ import annotations
 
 from datetime import datetime
