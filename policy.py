@@ -1,11 +1,3 @@
-"""
-policy.py
-Menghasilkan rekomendasi arah kebijakan lintas sektor berdasarkan hasil
-analisis kondisi atmosfer. Enam sektor mengikuti kebutuhan dashboard:
-Mitigasi Bencana Hidrometeorologi, Pengelolaan Sumber Daya Air, Penerbangan,
-Pertanian, Tata Ruang, dan Penguatan Sistem Observasi.
-"""
-
 from __future__ import annotations
 
 
