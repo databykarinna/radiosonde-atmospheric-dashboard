@@ -1,17 +1,3 @@
-"""
-calculation.py
-Perhitungan seluruh parameter turunan (indeks stabilitas, level konveksi,
-tropopause, lapse rate, karakteristik kelembapan & angin, wind shear,
-windex, hodograph) dari data profil radiosonde.
-
-Sebagian besar perhitungan memakai MetPy (metpy.calc) karena implementasi
-mandiri untuk CAPE/CIN, LCL/LFC/EL, dan indeks-indeks stabilitas rawan
-kesalahan numerik. Formula yang tidak tersedia di MetPy (mis. WINDEX)
-diimplementasikan manual dan sumbernya dicatat pada docstring masing-masing
-fungsi -- nilai ini sebaiknya tetap diverifikasi silang bila dipakai untuk
-keputusan operasional.
-"""
-
 from __future__ import annotations
 
 import numpy as np
@@ -154,9 +140,7 @@ def stability_indices(df: pd.DataFrame) -> dict:
 
 def tropopause_levels(significant_points_full: pd.DataFrame) -> dict:
     """Tropopause primer & sekunder dari indikator 'Tp' pada data mentah,
-    serta estimasi independen tropopause primer berbasis kriteria WMO
-    (lapse rate turun <= 2 C/km dan rata-rata lapse rate 2 km di atasnya
-    juga <= 2 C/km)."""
+    serta estimasi independen tropopause primer berbasis kriteria WMO"""
     d = significant_points_full.copy()
     d = d.dropna(subset=["tekanan_hpa", "ketinggian_m"]).sort_values("ketinggian_m").reset_index(drop=True)
 
@@ -300,21 +284,6 @@ def wind_shear_0_6km(df: pd.DataFrame) -> float:
 
 
 def windex(df: pd.DataFrame, humidity: dict) -> float:
-    """WINDEX (McCann, 1994) - estimasi potensi hembusan angin kencang
-    (downburst) dari konveksi kering/lembap sedang.
-
-    WINDEX = 5 * sqrt( Hm * Rq * (Gamma^2 - 30 + Ql - 2*Qm) )
-
-    Hm    : tinggi level lebur 0 C (km AGL)
-    Gamma : laju penurunan suhu rata-rata permukaan - level lebur (C/km)
-    Rq    : rasio pencampuran permukaan / 12 (dibatasi 0-1)
-    Ql    : rasio pencampuran permukaan (g/kg)
-    Qm    : rasio pencampuran pada level lebur (g/kg)
-
-    [Confidence: Medium - beberapa varian formula WINDEX beredar di literatur
-    operasional; hasil ini sebaiknya diverifikasi silang bila dipakai untuk
-    keputusan operasional peringatan dini.]
-    """
     d = clean_profile(df)
     if d.empty or d["suhu_c"].min() > 0:
         return float("nan")
@@ -352,10 +321,6 @@ def hodograph_data(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def run_full_analysis(rsdata) -> dict:
-    """Jalankan seluruh perhitungan untuk satu file .CRA yang sudah di-parse
-    (parser.RadiosondeData) dan kembalikan satu dict hasil analisis lengkap,
-    siap dipakai oleh interpretation.py, visualization.py, dan disimpan ke
-    database.py."""
     sig_full = rsdata.tables.get("significant_points", pd.DataFrame())
     df = clean_profile(sig_full)
 
