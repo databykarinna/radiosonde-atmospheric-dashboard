@@ -1,23 +1,3 @@
-"""
-parser.py
-Parser untuk file radiosonde format .CRA (Eoscan / Vaisala style report).
-
-Struktur file (blok dipisah baris kosong):
-    Header umum (Sonde ID, Date, Time, WMO Station index, Country,
-    Station name, Position)
-    Info penerbangan balon (Start, Vz ..., Duration flight, at .. hPa,
-    at .. m, to .. km, Burst, Termination reason)
-    Surface data (Ground pressure, Ground temperature, dst)
-    Significants points: <tabel>
-    Standard levels: <tabel>
-    Particular levels: <tabel>
-    Additional, regional and national levels: <tabel>
-    Standards Wind Altitudes points: <tabel> (tanpa kolom waktu/indikator)
-
-Semua tabel level memakai kolom (tab-separated):
-    Time  Alt  P(hPa)  T(C)  DP(C)  RH(%)  WF(kts)  WD(deg)  ind.
-"""
-
 from __future__ import annotations
 
 import io
@@ -170,7 +150,6 @@ def parse_cra_bytes(raw_bytes: bytes) -> RadiosondeData:
         elif key.startswith("Total precipitable water"):
             data.pwat_mm = _to_float(val.replace("mm", ""))
 
-        # baris "\tat\t14.1 hPa" / "\tat\t28966 m" / "\tto\t18.870 km (Distance)"
         if line.strip().startswith("at\t") or "\tat\t" in line:
             sub = line.strip()
             if sub.startswith("at"):
