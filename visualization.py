@@ -20,13 +20,24 @@ SALMON_PALE = "#FB9590"
 
 APP_BG = PEACH
 
+PINK_UTAMA = ROSE
+PINK_GELAP = MAUVE
+PINK_MEDIUM = SALMON
+PINK_PALE = PEACH
+PINK_ROSE = MAROON
+
+BIRU = MAUVE_GELAP
+BIRU_MUDA = SALMON
+BIRU_TUA = MAUVE_GELAP
+BIRU_PALE = "rgba(251,149,144,0.35)"
+
 PALETTE = [ROSE, MAUVE_GELAP, SALMON, MAUVE, MAROON]
 
 PLOTLY_LAYOUT = dict(
     template="plotly_white",
     font=dict(family="Arial, sans-serif", size=13, color=MAUVE_GELAP),
     margin=dict(l=50, r=25, t=70, b=45),
-    plot_bgcolor="#FFF6EF",
+    plot_bgcolor=PEACH,
     paper_bgcolor=APP_BG,
     xaxis_title_font_color=MAROON,
     yaxis_title_font_color=MAROON,
@@ -63,6 +74,7 @@ def fig_skewt(profile_df: pd.DataFrame):
     T = d["suhu_c"].to_numpy() * units.degC
     Td = d["titik_embun_c"].to_numpy() * units.degC
 
+    # Figure landscape (lebar > tinggi)
     fig = plt.figure(figsize=(9, 6.5))
     skew = SkewT(fig, rotation=45)
     skew.plot(p, T, color=MAROON, linewidth=2.0, label="Suhu")
@@ -85,24 +97,27 @@ def fig_skewt(profile_df: pd.DataFrame):
     except Exception:
         pass
 
-    skew.plot_dry_adiabats(color="#FFD9BE", linewidth=0.6)
-    skew.plot_moist_adiabats(color="#F7C3B5", linewidth=0.6)
-    skew.plot_mixing_lines(color="#F0A8A0", linewidth=0.6)
+    skew.plot_dry_adiabats(color=SALMON_PALE, linewidth=0.6)
+    skew.plot_moist_adiabats(color=SALMON, linewidth=0.6)
+    skew.plot_mixing_lines(color=MAUVE, linewidth=0.6)
     skew.ax.set_xlim(-90, 45)
     skew.ax.set_ylim(1000, 100)
 
+    # Judul sumbu X/Y yang deskriptif 
     skew.ax.set_xlabel("Suhu (°C)", fontsize=11, color=MAROON)
     skew.ax.set_ylabel("Tekanan (hPa)", fontsize=11, color=MAROON)
+    # Angka skala (tick) juga disamakan warnanya dengan judul sumbu
     skew.ax.tick_params(axis="x", colors=MAROON)
     skew.ax.tick_params(axis="y", colors=MAROON)
 
+    # Judul grafik
     skew.ax.set_title(
         "Grafik Skew-T Log-P",
         fontsize=14, fontweight="bold", color=MAUVE_GELAP, loc="center", pad=22,
         bbox=dict(facecolor="white", alpha=0.78, edgecolor=ROSE, boxstyle="square,pad=0.4"),
     )
     skew.ax.legend(loc="upper right", fontsize=8, frameon=True, facecolor="white", framealpha=0.7)
-    skew.ax.set_facecolor("#FFF6EF")
+    skew.ax.set_facecolor(PEACH)
     fig.patch.set_facecolor(APP_BG)
     fig.tight_layout()
     return fig
@@ -188,6 +203,7 @@ def fig_lapse_rate(lapse_df: pd.DataFrame):
         yaxis_autorange="reversed", height=430,
         **_pill_title("Lapse Rate (°C/km) berdasarkan Ketinggian (km)"),
     )
+    
     fig.update_layout(margin=dict(b=75))
     return fig
 
@@ -203,6 +219,7 @@ def fig_donut_stabilitas(lapse_df: pd.DataFrame):
         marker=dict(colors=[colors.get(k, SALMON) for k in counts.index],
                     line=dict(color="#FFFFFF", width=1.5)),
         textfont=dict(size=13),
+
     ))
     fig.update_layout(
         height=283,
@@ -303,6 +320,7 @@ def fig_hodograph(hodo_df: pd.DataFrame):
         hovertemplate="u: %{x:.1f} kt<br>v: %{y:.1f} kt<extra></extra>",
     ))
 
+
     combined = pd.concat([d["u_kt"].abs(), d["v_kt"].abs()]).dropna()
     if not combined.empty:
         robust_max = float(np.nanpercentile(combined, 95))
@@ -313,7 +331,7 @@ def fig_hodograph(hodo_df: pd.DataFrame):
     for r in np.linspace(max_r / 3, max_r, 3):
         theta = np.linspace(0, 2 * np.pi, 100)
         fig.add_trace(go.Scatter(x=r * np.cos(theta), y=r * np.sin(theta), mode="lines",
-                                 line=dict(color="#F0A8A0", width=1), showlegend=False, hoverinfo="skip"))
+                                 line=dict(color=MAUVE, width=1), showlegend=False, hoverinfo="skip"))
     fig.update_layout(
         xaxis=dict(scaleanchor="y", scaleratio=1, range=[-max_r, max_r], title="Komponen U (kt)"),
         yaxis=dict(range=[-max_r, max_r], title="Komponen V (kt)"),
