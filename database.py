@@ -1,10 +1,3 @@
-"""
-database.py
-Penyimpanan "database" parameter atmosfer hasil analisis ke file CSV lokal.
-Satu baris = satu tanggal observasi. Jika tanggal yang sama sudah ada,
-data tidak akan disimpan ulang (sesuai permintaan pengguna).
-"""
-
 from __future__ import annotations
 
 import os
@@ -73,7 +66,6 @@ def build_row(analysis: dict) -> dict:
 
 
 def save_analysis(analysis: dict) -> tuple:
-    """Simpan satu baris hasil analisis. Mengembalikan (berhasil: bool, pesan: str)."""
     tanggal_iso = analysis["header"].get("tanggal_iso")
     if not tanggal_iso:
         return False, "Tanggal observasi tidak terbaca dari file, data tidak disimpan."
