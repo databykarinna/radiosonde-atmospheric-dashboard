@@ -1,9 +1,3 @@
-"""
-app.py
-Dashboard Analisis Kondisi Atmosfer Berbasis Data Radiosonde (.CRA)
-Jalankan dengan: streamlit run app.py
-"""
-
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -22,29 +16,26 @@ import database as db
 st.set_page_config(page_title="Dashboard Analisis Kondisi Atmosfer Berbasis Data Radiosonde",
                    layout="wide")
 
-# ---------------------------------------------------------------------------
-# PALET WARNA — palet baru (peach - salmon - rose - mauve - maroon - marun tua).
-# Catatan/note-box sengaja dikecualikan (pakai kuning soft) sesuai permintaan.
-# ---------------------------------------------------------------------------
-BIRU_TUA = "#4C1D3D"     # paling gelap — judul, teks penting
-BIRU_AKSEN = "#A33757"   # mauve — angka metric, aksen insight-box, tab aktif
-BIRU_MUDA = "#FB9590"    # salmon — sidebar, header bar
-BIRU_PALE = "#FFE7DA"    # peach terang — background utama app
-PINK_GELAP = "#DC586D"   # rose — aksen section-header, border dropzone
-PINK_MEDIUM = "#852E4E"  # maroon — background dropzone
-PINK_PALE = "#FB9590"    # salmon — background file uploader, background tab
+
+MAUVE_GELAP = "#4C1D3D"     
+MAUVE = "#A33757"   
+SALMON = "#FB9590"    
+PEACH = "#FFE7DA"    
+ROSE = "#DC586D"   
+MAROON = "#852E4E"  
+SALMON_PALE = "#FB9590"    
 
 CUSTOM_CSS = f"""
 <style>
 .stApp {{
-    background-color: {BIRU_PALE};
+    background-color: {PEACH};
 }}
 [data-testid="stSidebar"] {{
-    background-color: {BIRU_MUDA};
+    background-color: {SALMON};
 }}
 .sidebar-title-box {{
     background-color: #ffffff;
-    color: {BIRU_TUA};
+    color: {MAUVE_GELAP};
     border-radius: 30px;
     padding: px 16px;
     font-size: 20px;
@@ -54,7 +45,7 @@ CUSTOM_CSS = f"""
     box-shadow: 0 2px 6px rgba(0,0,0,.10);       
 }}
 [data-testid="stSidebar"] [data-testid="stRadio"] {{
-    background-color: {PINK_MEDIUM};
+    background-color: {MAROON};
     border-radius: 14px;
     padding: 14px 16px;
     box-shadow: 0 2px 6px rgba(0,0,0,.10);
@@ -64,11 +55,11 @@ CUSTOM_CSS = f"""
     color: #ffffff !important;
 }}
 [data-testid="stHeader"] {{
-    background-color: {BIRU_PALE};
+    background-color: {PEACH};
 }}
     .block-container {{padding-top: 2rem;}}
     h1, h2, h3 {{
-    color: {BIRU_TUA};
+    color: {MAUVE_GELAP};
     text-align: center;
 }}
 
@@ -76,9 +67,9 @@ h1 {{
     text-align: center;
 }}
 
-    /* ===== Section header — dibuat KAPITAL semua + kontras lebih kuat ===== */
+    /* ===== Section header ===== */
     .section-header {{
-    background-color: {PINK_GELAP};
+    background-color: {ROSE};
     color: #ffffff;
     padding: 10px 16px;
     border-radius: 30px;
@@ -98,12 +89,12 @@ h1 {{
     box-shadow: 0 2px 6px rgba(0,0,0,.18);
 }}
 
-    /* ===== Insight / catatan: rata kanan-kiri (justify) + warna lebih kontras ===== */
+    /* ===== Insight / catatan ===== */
     .insight-box {{
-        background-color: #FBD0DA; border-left: 6px solid {BIRU_AKSEN};
+        background-color: #FBD0DA; border-left: 6px solid {MAUVE};
         padding: 14px 18px; border-radius: 6px; font-size: 0.95rem;
         text-align: justify; text-justify: inter-word;
-        color: {BIRU_TUA};
+        color: {MAUVE_GELAP};
         box-shadow: 0 1px 4px rgba(0,0,0,.10);
     }}
     .note-box {{
@@ -112,7 +103,7 @@ h1 {{
         text-align: justify; text-justify: inter-word; font-weight: 600;
     }}
 
-    /* ===== Kesimpulan: kotak PUTIH polos, beda dari insight-box ===== */
+    /* ===== Kesimpulan ===== */
     .conclusion-box {{
         background-color: #ffffff;
         border-radius: 12px;
@@ -121,62 +112,62 @@ h1 {{
         box-shadow: 0 1px 4px rgba(0,0,0,.08);
         text-align: justify;
         text-justify: inter-word;
-        color: {BIRU_TUA};
+        color: {MAUVE_GELAP};
         font-size: 0.95rem;
     }}
 
     h1 {{
-    color: {BIRU_TUA} !important;
+    color: {MAUVE_GELAP} !important;
 }}
 
 /* Container luar file uploader */
 [data-testid="stFileUploader"] {{
-    background-color: {PINK_PALE} !important;
+    background-color: {SALMON_PALE} !important;
     border-radius: 15px;
     padding: 12px;
     box-shadow: 0 3px 10px rgba(0,0,0,.10);
 }}
 
-/* Kotak upload (dropzone, sebelum file dipilih) — teks putih di atas background maroon */
+/* Kotak upload */
 [data-testid="stFileUploaderDropzone"] {{
-    background-color: {PINK_MEDIUM} !important;
-    border: 2px dashed {PINK_GELAP} !important;
+    background-color: {MAROON} !important;
+    border: 2px dashed {ROSE} !important;
     border-radius: 12px;
 }}
 [data-testid="stFileUploaderDropzone"] * {{
     color: #ffffff !important;
 }}
 
-/* File yang SUDAH diupload (chip putih) — teks dibuat GELAP supaya kelihatan */
+/* File yang SUDAH diupload */
 [data-testid="stFileUploader"] section [data-testid="stFileUploaderFile"],
 [data-testid="stFileUploader"] section [data-testid="stFileUploaderFile"] * {{
-    color: {BIRU_TUA} !important;
+    color: {MAUVE_GELAP} !important;
 }}
 [data-testid="stFileUploader"] section [data-testid="stFileUploaderFileName"] {{
-    color: {BIRU_TUA} !important;
+    color: {MAUVE_GELAP} !important;
 }}
 [data-testid="stFileUploader"] section small {{
-    color: {BIRU_TUA} !important;
+    color: {MAUVE_GELAP} !important;
 }}
 [data-testid="stFileUploaderDropzone"] button {{
     background-color: #ffffff !important;
-    border: 1px solid {BIRU_TUA} !important;
+    border: 1px solid {MAUVE_GELAP} !important;
     border-radius: 8px !important;
-    color: {BIRU_TUA} !important;
+    color: {MAUVE_GELAP} !important;
 }}
 [data-testid="stFileUploaderDropzone"] button * {{
-    color: {BIRU_TUA} !important;
+    color: {MAUVE_GELAP} !important;
 }}
 [data-testid="stFileUploaderDropzone"] button:hover {{
     background-color: #F5F5F5 !important;
-    border: 1px solid {BIRU_TUA} !important;
+    border: 1px solid {MAUVE_GELAP} !important;
 }}
 [data-testid="stFileUploaderDropzone"] button svg {{
-    fill: {BIRU_TUA} !important;
+    fill: {MAUVE_GELAP} !important;
 }}
 [data-testid="stFileUploader"] label,
 [data-testid="stFileUploader"] label p {{
-    color: {BIRU_TUA} !important;
+    color: {MAUVE_GELAP} !important;
     font-weight: 600;
 }}
 .info-card{{
@@ -199,7 +190,7 @@ h1 {{
     min-height:170px;
     text-align: justify;
     text-justify: inter-word;
-    color: {BIRU_TUA};
+    color: {MAUVE_GELAP};
 }}
 
 .stat-card{{
@@ -207,7 +198,7 @@ h1 {{
     padding:6px 0 0 0;
 }}
 
-/* ===== Tabel info (Informasi Observasi / Penerbangan Balon / Kondisi Permukaan): rata kiri ===== */
+/* ===== Tabel info ===== */
 .info-table{{
     width:100%;
     border-collapse:collapse;
@@ -226,7 +217,7 @@ h1 {{
 .info-table td:first-child{{
     font-weight:700;
     white-space:nowrap;
-    color:{BIRU_TUA};
+    color:{MAUVE_GELAP};
 }}
 
 .info-table td:last-child{{
@@ -238,7 +229,7 @@ h1 {{
     color: white !important;
 }}
 
-/* ===== Kotak hint upload: teks HITAM ===== */
+/* ===== Kotak hint upload ===== */
 .upload-hint {{
     background-color: #FFFBEA;
     border-left: 6px solid #E8C468;
@@ -250,9 +241,9 @@ h1 {{
     font-weight:600;
 }}
 
-/* Bagian "Data Profil Vertikal": tab + tabel dibungkus background salmon muda */
+/* Bagian "Data Profil Vertikal" */
 [data-testid="stTabs"] {{
-    background-color: {PINK_PALE};
+    background-color: {SALMON_PALE};
     border-radius: 14px;
     padding: 14px;
     box-shadow: 0 3px 10px rgba(0,0,0,.10);
@@ -266,14 +257,14 @@ h1 {{
 [data-baseweb="tab"] {{
     border-radius: 8px 8px 0 0;
     background-color: rgba(255,255,255,0.55);
-    color: {BIRU_TUA};
+    color: {MAUVE_GELAP};
     font-weight: 700;
 }}
 
-/* Tab aktif — background lebih gelap & kontras + font putih */
+/* Tab aktif */
 [data-testid="stTabs"] [data-baseweb="tab"][aria-selected="true"],
 [data-testid="stTabs"] [data-baseweb="tab"][data-selected] {{
-    background-color: {BIRU_TUA} !important;
+    background-color: {MAUVE_GELAP} !important;
 }}
 
 [data-testid="stTabs"] [data-baseweb="tab"][aria-selected="true"] *,
@@ -283,45 +274,45 @@ h1 {{
 }}
 
 [data-testid="stTabs"] [data-baseweb="tab-highlight"] {{
-    background-color: {PINK_GELAP} !important;
+    background-color: {ROSE} !important;
 }}
 
-/* Tabel (st.dataframe) — background tidak putih polos */
+/* Tabel */
 [data-testid="stDataFrame"] {{
-    background-color: {PINK_PALE};
+    background-color: {SALMON_PALE};
     border-radius: 12px;
     padding: 6px;
-    border: 1px solid {PINK_GELAP};
+    border: 1px solid {ROSE};
 }}
 [data-testid="stDataFrameResizable"] {{
-    background-color: {PINK_PALE} !important;
+    background-color: {SALMON_PALE} !important;
 }}
 
-/* Alert bawaan Streamlit (mis. "data tanggal ... tidak disimpan ulang") — kontras lebih jelas */
+/* Alert bawaan Streamlit */
 [data-testid="stAlert"] {{
     border-radius: 10px !important;
 }}
 [data-testid="stAlert"] p {{
-    color: {BIRU_TUA} !important;
+    color: {MAUVE_GELAP} !important;
     font-weight: 700 !important;
     font-size: 15px !important;
 }}
 
 /* Kartu statistik ringkasan di bagian bawah profil vertikal */
 .stat-grid-title{{
-    color:{BIRU_TUA};
+    color:{MAUVE_GELAP};
     font-size:17px;
     font-weight:700;
     margin-bottom:14px;
     text-align:center;
 }}
 
-/* teks umum rata tengah (default), kecuali kelas yang override di atas */
+/* teks umum */
 .stMarkdown, p, li, label {{
     text-align:center;
 }}
 
-/* ===== Sub-judul kecil (label di atas grafik/tabel) — background semi-transparan, rata tengah ===== */
+/* ===== Sub-judul kecil ===== */
 .subtitle-wrap {{
     text-align:center;
     margin: 23px 0 12px 0;
@@ -329,23 +320,22 @@ h1 {{
 .subtitle-box {{
     display:inline-block;
     background-color: rgba(255,255,255,0.65);
-    color: {BIRU_TUA};
+    color: {MAUVE_GELAP};
     padding: 6px 20px;
     border-radius: 20px;
     font-weight:700;
     font-size:15.5px;
     text-align:center;
     box-shadow: 0 1px 4px rgba(0,0,0,.08);
-    border: 1px solid {PINK_GELAP};
+    border: 1px solid {ROSE};
 }}
 
-/* ===== Kontrol Visualisasi: container dengan KEY -> class .st-key-kontrol_viz ===== */
-/* Diisi warna solid (bukan cuma outline) supaya benar-benar terlihat sebagai kotak berwarna */
+/* ===== Kontrol Visualisasi ===== */
 .st-key-kontrol_viz {{
-    background-color: {PINK_PALE} !important;
+    background-color: {SALMON_PALE} !important;
     border-radius: 16px !important;
     padding: 6px 20px 16px 20px !important;
-    border: 1px solid {PINK_GELAP} !important;
+    border: 1px solid {ROSE} !important;
     box-shadow: 0 3px 10px rgba(0,0,0,.12);
     margin-bottom: 16px;
     margin-top: 80px;
@@ -353,7 +343,7 @@ h1 {{
 .st-key-kontrol_viz > div {{
     background-color: transparent !important;
 }}
-/* Rapatkan jarak vertikal di bagian ATAS kontainer kontrol visualisasi:
+
    div "control-marker" kosong + subtitle-box di atasnya sengaja dipepetkan. */
 .st-key-kontrol_viz .subtitle-wrap {{
     margin-top: 0 !important;
@@ -364,17 +354,17 @@ h1 {{
     padding: 0 !important;
     line-height: 0 !important;
 }}
-/* Label "Parameter" dan "Ketinggian (m)" — putih */
+/* Label "Parameter" dan "Ketinggian (m)" */
 .st-key-kontrol_viz label,
 .st-key-kontrol_viz label p {{
     color: #ffffff !important;
 }}
 /* fallback untuk versi Streamlit yang memakai struktur wrapper lama */
 div[data-testid="stVerticalBlockBorderWrapper"]:has(div.control-marker) {{
-    background-color: {PINK_PALE} !important;
+    background-color: {SALMON_PALE} !important;
     border-radius: 16px !important;
     padding: 6px 20px 16px 20px !important;
-    border: 1px solid {PINK_GELAP} !important;
+    border: 1px solid {ROSE} !important;
     box-shadow: 0 3px 10px rgba(0,0,0,.12);
     margin-bottom: 16px;
 }}
@@ -383,7 +373,7 @@ div[data-testid="stVerticalBlockBorderWrapper"]:has(div.control-marker) label p 
     color: #ffffff !important;
 }}
 [data-testid="stFileUploaderDropzone"][data-testid="stFileUploaderDropzone"] * {{
-    color: {BIRU_TUA} !important;
+    color: {MAUVE_GELAP} !important;
 }}
 [data-baseweb="tab"] {{
     border-radius: 8px 8px 0 0;
@@ -393,7 +383,7 @@ div[data-testid="stVerticalBlockBorderWrapper"]:has(div.control-marker) label p 
 }}
 [data-testid="stDataFrame"] [data-testid="stElementToolbar"] ~ div [role="columnheader"],
 [data-testid="stDataFrame"] div[role="columnheader"] {{
-    color: {BIRU_TUA} !important;
+    color: {MAUVE_GELAP} !important;
     font-weight: 700;
 }}
 [data-testid="stFileUploaderDropzone"] span.st-emotion-cache-19loc4w {{
@@ -401,10 +391,10 @@ div[data-testid="stVerticalBlockBorderWrapper"]:has(div.control-marker) label p 
     font-weight: 500 !important;
 }}
 
-/* ===== Kotak metric custom (pengganti st.metric bawaan agar rata tengah 100% presisi) ===== */
+/* ===== Kotak metric custom ===== */
 .custom-metric {{
-    background-color: {PINK_MEDIUM};
-    border: 1px solid {BIRU_TUA};
+    background-color: {MAROON};
+    border: 1px solid {MAUVE_GELAP};
     border-radius: 12px;
     padding: 14px 10px 12px 10px;
     margin-bottom: 14px;
@@ -436,9 +426,7 @@ div[data-testid="stVerticalBlockBorderWrapper"]:has(div.control-marker) label p 
     text-align: center;
     width: 100%;
 }}
-/* Ikon bantuan "?" kecil menempel di sebelah label — tooltip muncul saat hover,
-   mirip ikon bantuan bawaan st.metric, tapi 100% terkontrol (tidak tergantung
-   struktur internal Streamlit yang berubah-ubah antar versi). */
+/* Ikon bantuan "?" kecil menempel di sebelah label */
 .cm-help {{
     position: relative;
     display: inline-flex;
@@ -462,7 +450,7 @@ div[data-testid="stVerticalBlockBorderWrapper"]:has(div.control-marker) label p 
     left: 50%;
     transform: translateX(-50%);
     background: #ffffff;
-    color: {BIRU_TUA};
+    color: {MAUVE_GELAP};
     text-align: left;
     padding: 10px 12px;
     border-radius: 8px;
@@ -480,8 +468,7 @@ div[data-testid="stVerticalBlockBorderWrapper"]:has(div.control-marker) label p 
     opacity: 1;
 }}
 
-/* ===== Kotak Wind Shear / WindEx — tinggi vertikal DISAMAKAN dengan kotak
-   Catatan di sampingnya (bagian "KARAKTERISTIK ANGIN ATMOSFER"). ===== */
+/* ===== Kotak Wind Shear / WindEx ===== */
 .st-key-wind_metrics_box {{
     display: flex;
     align-items: center;
@@ -510,19 +497,18 @@ def insight_box(text):
 
 
 def note_box(text, extra_class: str = ""):
-    """Kotak catatan (kuning). extra_class opsional dipakai untuk menyamakan
-    tinggi/ukuran kotak ini dengan elemen lain di sampingnya (mis. metric)."""
+    """Kotak catatan (kuning)"""
     css_class = ("note-box " + extra_class).strip()
     st.markdown(f'<div class="{css_class}">Catatan: {text}</div>', unsafe_allow_html=True)
 
 
 def conclusion_box(text):
-    """Kotak KESIMPULAN — putih polos, sengaja dibedakan dari insight-box."""
+    """Kotak KESIMPULAN"""
     st.markdown(f'<div class="conclusion-box">{text}</div>', unsafe_allow_html=True)
 
 
 def subtitle(text):
-    """Sub-judul kecil (di atas grafik/tabel) dengan background semi-transparan, rata tengah."""
+    """Sub-judul kecil (di atas grafik/tabel) dengan background semi-transparan"""
     st.markdown(f'<div class="subtitle-wrap"><span class="subtitle-box">{text}</span></div>',
                 unsafe_allow_html=True)
 
@@ -531,7 +517,7 @@ def page_header(text, align="center"):
     st.markdown(
         f"""
         <h2 style="
-            color:{BIRU_TUA};
+            color:{MAUVE_GELAP};
             font-size:28px;
             font-weight:700;
             margin-top:20px;
@@ -546,11 +532,6 @@ def page_header(text, align="center"):
 
 
 def custom_metric(label, value, help_text=None):
-    """Pengganti st.metric bawaan Streamlit — label & value dijamin rata
-    tengah karena murni HTML/CSS kita sendiri, bukan mengandalkan struktur
-    internal Streamlit yang bisa berubah antar versi. Jika help_text diisi,
-    ikon "?" kecil ditampilkan menempel di sebelah label (tooltip muncul
-    saat hover), mirip ikon bantuan bawaan st.metric."""
     help_html = ""
     if help_text:
         tooltip_text = re.sub(r"\*\*(.*?)\*\*", r"<b>\1</b>", help_text)
@@ -754,7 +735,7 @@ def render_dashboard(analysis):
             with col:
                 st.plotly_chart(f, width='stretch')
 
-    # ---- Distribusi titik & Pilih Ketinggian — berdampingan ----
+    # ---- Distribusi titik & Pilih Ketinggian ----
     dcol1, dcol2 = st.columns([1.3, 1], gap="medium")
     with dcol1:
         st.plotly_chart(viz.fig_distribusi_titik(analysis["tables"]["significant_points"]),
@@ -882,9 +863,6 @@ def render_dashboard(analysis):
     with stab_help.popover("❓ Apa itu Stabilitas Lapisan?", width='stretch'):
         st.markdown(DEFINISI["stabilitas_lapisan"])
 
-    # Kolom kiri: grafik lapse rate + catatannya di bawahnya.
-    # Kolom kanan: donut stabilitas + bar status inversi di bawahnya —
-    # jadi catatan (kiri) sejajar dengan bar status inversi (kanan).
     lc1, lc2 = st.columns([1.3, 1])
     with lc1:
         st.plotly_chart(viz.fig_lapse_rate(lapse_df), width='stretch')
@@ -971,7 +949,7 @@ def render_dashboard(analysis):
 
     st.divider()
 
-    # ---- KESIMPULAN — kotak PUTIH, sengaja dibedakan dari insight ----
+    # ---- KESIMPULAN ----
     section_header("KESIMPULAN")
     conclusion_box(itp.kesimpulan_umum(stab, humid, stab.get("sweat_index"), stab.get("dcape")))
 
@@ -1042,7 +1020,6 @@ def render_multiwaktu_page():
     import plotly.graph_objects as go
 
     def _line_fig(y_col, label, color, yaxis_title, reversed_axis=False):
-        """Satu grafik garis untuk satu parameter saja (bukan gabungan)."""
         f = go.Figure()
         f.add_trace(go.Scatter(x=d["tanggal"], y=d[y_col], mode="lines+markers",
                                name=label, line=dict(color=color)))
@@ -1054,7 +1031,6 @@ def render_multiwaktu_page():
         return f
 
     def _bar_fig(y_col, label, color, yaxis_title):
-        """Satu grafik batang untuk satu parameter saja."""
         f = go.Figure()
         f.add_trace(go.Bar(x=d["tanggal"], y=d[y_col], name=label, marker_color=color))
         f.update_layout(xaxis_title="Tanggal", yaxis_title=yaxis_title,
@@ -1063,7 +1039,6 @@ def render_multiwaktu_page():
         return f
 
     def _render_grid(figs):
-        """Tata sejumlah grafik dalam grid 2 kolom (baris demi baris)."""
         for i in range(0, len(figs), 2):
             cols = st.columns(2)
             for col, f in zip(cols, figs[i:i + 2]):
@@ -1074,8 +1049,8 @@ def render_multiwaktu_page():
     figs_konveksi = [
         _line_fig("lcl_hpa", "Lifting Condensation Level (hPa)", viz.PINK_UTAMA, "Tekanan (hPa)", reversed_axis=True),
         _line_fig("ccl_hpa", "Convective Condensation Level (hPa)", viz.BIRU, "Tekanan (hPa)", reversed_axis=True),
-        _line_fig("lfc_hpa", "Level of Free Convection (hPa)", viz.BIRU_MUDA, "Tekanan (hPa)", reversed_axis=True),
-        _line_fig("el_hpa", "Equilibrium Level (hPa)", viz.PINK_GELAP, "Tekanan (hPa)", reversed_axis=True),
+        _line_fig("lfc_hpa", "Level of Free Convection (hPa)", viz.SALMON, "Tekanan (hPa)", reversed_axis=True),
+        _line_fig("el_hpa", "Equilibrium Level (hPa)", viz.ROSE, "Tekanan (hPa)", reversed_axis=True),
     ]
     _render_grid(figs_konveksi)
 
@@ -1084,7 +1059,7 @@ def render_multiwaktu_page():
     section_header("TREN CAPE & CIN (MOST UNSTABLE)")
     figs_cape_cin = [
         _bar_fig("cape_mu", "MUCAPE (J/kg)", viz.PINK_UTAMA, "MUCAPE (J/kg)"),
-        _line_fig("cin_mu", "MUCIN (J/kg)", viz.BIRU_TUA, "MUCIN (J/kg)"),
+        _line_fig("cin_mu", "MUCIN (J/kg)", viz.MAUVE_GELAP, "MUCIN (J/kg)"),
     ]
     _render_grid(figs_cape_cin)
 
@@ -1094,8 +1069,8 @@ def render_multiwaktu_page():
     figs_stabilitas = [
         _line_fig("k_index", "K Index", viz.PINK_UTAMA, "Nilai Indeks"),
         _line_fig("lifted_index", "Lifted Index", viz.BIRU, "Nilai Indeks"),
-        _line_fig("total_totals", "Total Totals", viz.BIRU_MUDA, "Nilai Indeks"),
-        _line_fig("showalter_index", "Showalter Index", viz.PINK_GELAP, "Nilai Indeks"),
+        _line_fig("total_totals", "Total Totals", viz.SALMON, "Nilai Indeks"),
+        _line_fig("showalter_index", "Showalter Index", viz.ROSE, "Nilai Indeks"),
         _line_fig("sweat_index", "SWEAT Index", viz.PINK_ROSE, "Nilai Indeks"),
     ]
     _render_grid(figs_stabilitas)
@@ -1105,7 +1080,7 @@ def render_multiwaktu_page():
     section_header("TREN KELEMBAPAN (PWAT & RH RATA-RATA 1000-700 hPa)")
     figs_kelembapan = [
         _bar_fig("pwat_mm", "PWAT (mm)", viz.PINK_UTAMA, "PWAT (mm)"),
-        _line_fig("rh_mean_1000_700", "RH Mean 1000-700 (%)", viz.BIRU_TUA, "RH Mean 1000-700 (%)"),
+        _line_fig("rh_mean_1000_700", "RH Mean 1000-700 (%)", viz.MAUVE_GELAP, "RH Mean 1000-700 (%)"),
     ]
     _render_grid(figs_kelembapan)
 
@@ -1114,7 +1089,7 @@ def render_multiwaktu_page():
     section_header("TREN WIND SHEAR & WINDEX")
     figs_angin = [
         _line_fig("wind_shear_kt", "Wind Shear (kt)", viz.PINK_UTAMA, "Kecepatan (kt)"),
-        _line_fig("windex", "WindEx (kt)", viz.BIRU_TUA, "Kecepatan (kt)"),
+        _line_fig("windex", "WindEx (kt)", viz.MAUVE_GELAP, "Kecepatan (kt)"),
     ]
     _render_grid(figs_angin)
 
