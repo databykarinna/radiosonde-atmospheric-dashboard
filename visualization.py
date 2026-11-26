@@ -10,9 +10,6 @@ from metpy.plots import SkewT
 from metpy.units import units
 import metpy.calc as mpcalc
 
-# ---------------------------------------------------------------------------
-# KONFIGURASI WARNA (MENGIKUTI KODE PERTAMA)
-# ---------------------------------------------------------------------------
 MAUVE_GELAP = "#4C1D3D"
 MAUVE = "#A33757"
 SALMON = "#FB9590"
@@ -36,18 +33,11 @@ BIRU_PALE = "rgba(251,149,144,0.35)"
 
 PALETTE = [ROSE, MAUVE_GELAP, SALMON, MAUVE, MAROON]
 
-# ---------------------------------------------------------------------------
-# Layout dasar untuk semua grafik Plotly.
-# Judul grafik TIDAK memakai title bawaan Plotly lagi -> lihat _pill_title().
-# xaxis_title_font_color / yaxis_title_font_color dipakai (bukan key "xaxis"/
-# "yaxis" utuh) supaya tidak bentrok dengan figure yang sudah mendefinisikan
-# dict xaxis=/yaxis= sendiri (mis. fig_hodograph).
-# ---------------------------------------------------------------------------
 PLOTLY_LAYOUT = dict(
     template="plotly_white",
     font=dict(family="Arial, sans-serif", size=13, color=MAUVE_GELAP),
     margin=dict(l=50, r=25, t=70, b=45),
-    plot_bgcolor="#FFF6EF",
+    plot_bgcolor=PEACH,
     paper_bgcolor=APP_BG,
     xaxis_title_font_color=MAROON,
     yaxis_title_font_color=MAROON,
@@ -57,11 +47,6 @@ PLOTLY_LAYOUT = dict(
 
 
 def _pill_title(text: str, top_margin: int = 78) -> dict:
-    """
-    Layout dict untuk judul grafik berbentuk "chip"/pill dengan background
-    putih semi-transparan, SELALU rata tengah — konsisten dengan subtitle-box
-    di app.py. Menggantikan title bawaan Plotly (yang polos, tanpa background).
-    """
     layout = dict(PLOTLY_LAYOUT)
     margin = dict(layout.get("margin", {}))
     margin["t"] = top_margin
@@ -112,28 +97,27 @@ def fig_skewt(profile_df: pd.DataFrame):
     except Exception:
         pass
 
-    skew.plot_dry_adiabats(color="#FFD9BE", linewidth=0.6)
-    skew.plot_moist_adiabats(color="#F7C3B5", linewidth=0.6)
-    skew.plot_mixing_lines(color="#F0A8A0", linewidth=0.6)
+    skew.plot_dry_adiabats(color=SALMON_PALE, linewidth=0.6)
+    skew.plot_moist_adiabats(color=SALMON, linewidth=0.6)
+    skew.plot_mixing_lines(color=MAUVE, linewidth=0.6)
     skew.ax.set_xlim(-90, 45)
     skew.ax.set_ylim(1000, 100)
 
-    # Judul sumbu X/Y yang deskriptif — warna MAROON
+    # Judul sumbu X/Y yang deskriptif 
     skew.ax.set_xlabel("Suhu (°C)", fontsize=11, color=MAROON)
     skew.ax.set_ylabel("Tekanan (hPa)", fontsize=11, color=MAROON)
     # Angka skala (tick) juga disamakan warnanya dengan judul sumbu
     skew.ax.tick_params(axis="x", colors=MAROON)
     skew.ax.tick_params(axis="y", colors=MAROON)
 
-    # Judul grafik: "chip" background putih semi-transparan, rata tengah, kotak
-    # (bukan rounded) dan diberi jarak (pad) lebih besar dari garis grafik.
+    # Judul grafik
     skew.ax.set_title(
         "Grafik Skew-T Log-P",
         fontsize=14, fontweight="bold", color=MAUVE_GELAP, loc="center", pad=22,
         bbox=dict(facecolor="white", alpha=0.78, edgecolor=ROSE, boxstyle="square,pad=0.4"),
     )
     skew.ax.legend(loc="upper right", fontsize=8, frameon=True, facecolor="white", framealpha=0.7)
-    skew.ax.set_facecolor("#FFF6EF")
+    skew.ax.set_facecolor(PEACH)
     fig.patch.set_facecolor(APP_BG)
     fig.tight_layout()
     return fig
@@ -199,7 +183,7 @@ def fig_cape_cin_bar(stab: dict):
         height=310, **_pill_title("CAPE (J/kg) berdasarkan Parcel"),
     )
 
-    fig_cin = go.Figure(go.Bar(y=parcels, x=cin_vals, orientation="h", marker_color=PINK_MEDIUM,
+    fig_cin = go.Figure(go.Bar(y=parcels, x=cin_vals, orientation="h", marker_color=SALMON,
                                 marker_line=dict(color=MAUVE_GELAP, width=1)))
     fig_cin.update_layout(
         xaxis_title="CIN (J/kg)", yaxis_title="Parcel", xaxis_autorange="reversed",
@@ -219,9 +203,7 @@ def fig_lapse_rate(lapse_df: pd.DataFrame):
         yaxis_autorange="reversed", height=430,
         **_pill_title("Lapse Rate (°C/km) berdasarkan Ketinggian (km)"),
     )
-
-    # Margin bawah disamakan presisi dengan fig_donut_stabilitas supaya kedua
-    # grafik ini (yang ditampilkan berdampingan di app.py) sejajar presisi.
+    
     fig.update_layout(margin=dict(b=75))
     return fig
 
@@ -233,9 +215,6 @@ def fig_donut_stabilitas(lapse_df: pd.DataFrame):
     fig = go.Figure(go.Pie(
         labels=counts.index, values=counts.values,
         hole=0.5,
-        # Domain dipadatkan & digeser NAIK (y mulai lebih tinggi, rentang
-        # lebih pendek) supaya donut "didorong ke atas" -- ruang di bawahnya
-        # jadi lebih ringkas sebelum masuk ke fig_bar_status_inversi().
         domain=dict(x=[0.14, 0.92], y=[0.30, 1.0]),
         marker=dict(colors=[colors.get(k, SALMON) for k in counts.index],
                     line=dict(color="#FFFFFF", width=1.5)),
@@ -255,14 +234,6 @@ def fig_donut_stabilitas(lapse_df: pd.DataFrame):
 
 
 def fig_bar_status_inversi(lapse_df: pd.DataFrame):
-    """Bar chart HORIZONTAL distribusi status inversi (kategori: 'Inversi
-    Suhu' / 'Tidak Inversi', lihat calculation.lapse_rate_table). Warna
-    disamakan dengan fig_cape_cin_bar (ROSE solid). Ditempatkan di bawah
-    fig_donut_stabilitas() (yang kini diperkecil/didorong ke atas) di
-    app.py, dengan tinggi disesuaikan supaya batas bawahnya mendekati
-    sejajar dengan note_box di bawah fig_lapse_rate() pada kolom kiri.
-    Catatan: kesejajaran ini perkiraan visual, bukan presisi pixel-perfect,
-    karena tinggi note_box (HTML/CSS) dinamis mengikuti panjang teksnya."""
     counts = lapse_df["status_inversi"].value_counts()
     fig = go.Figure(go.Bar(
         y=counts.index, x=counts.values, orientation="h",
@@ -349,16 +320,7 @@ def fig_hodograph(hodo_df: pd.DataFrame):
         hovertemplate="u: %{x:.1f} kt<br>v: %{y:.1f} kt<extra></extra>",
     ))
 
-    # ---- Skala sumbu dibuat "robust" terhadap outlier ------------------------
-    # Sebelumnya skala dihitung dari nilai MAKSIMUM absolut u/v. Jika ada satu
-    # titik data yang tidak wajar (mis. kesalahan parsing / nilai angin ekstrem
-    # yang tidak realistis), skala jadi meregang jauh (mis. sampai ratusan kt)
-    # sementara mayoritas data hanya berkisar puluhan kt, sehingga hodograf
-    # terlihat "kecil" menggerombol di tengah. Di sini dipakai persentil ke-95
-    # (bukan maksimum mutlak) supaya satu outlier tidak mendikte seluruh skala.
-    # CATATAN: ini hanya memperbaiki tampilan/zoom, bukan memvalidasi data —
-    # kalau nilai u/v memang sering melebihi ~100 kt, ada baiknya dicek ulang
-    # sumber datanya (kemungkinan salah parsing kolom kecepatan/arah angin).
+
     combined = pd.concat([d["u_kt"].abs(), d["v_kt"].abs()]).dropna()
     if not combined.empty:
         robust_max = float(np.nanpercentile(combined, 95))
@@ -369,7 +331,7 @@ def fig_hodograph(hodo_df: pd.DataFrame):
     for r in np.linspace(max_r / 3, max_r, 3):
         theta = np.linspace(0, 2 * np.pi, 100)
         fig.add_trace(go.Scatter(x=r * np.cos(theta), y=r * np.sin(theta), mode="lines",
-                                 line=dict(color="#F0A8A0", width=1), showlegend=False, hoverinfo="skip"))
+                                 line=dict(color=MAUVE, width=1), showlegend=False, hoverinfo="skip"))
     fig.update_layout(
         xaxis=dict(scaleanchor="y", scaleratio=1, range=[-max_r, max_r], title="Komponen U (kt)"),
         yaxis=dict(range=[-max_r, max_r], title="Komponen V (kt)"),
