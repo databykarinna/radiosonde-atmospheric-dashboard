@@ -43,6 +43,10 @@ PLOTLY_LAYOUT = dict(
     yaxis_title_font_color=MAROON,
     xaxis_tickfont_color=MAROON,
     yaxis_tickfont_color=MAROON,
+    xaxis_gridcolor="rgba(133,46,78,0.15)",
+    yaxis_gridcolor="rgba(133,46,78,0.15)",
+    xaxis_zerolinecolor="rgba(133,46,78,0.30)",
+    yaxis_zerolinecolor="rgba(133,46,78,0.30)",
 )
 
 
