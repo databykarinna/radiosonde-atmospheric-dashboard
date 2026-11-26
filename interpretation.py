@@ -1,14 +1,3 @@
-"""
-interpretation.py
-Menghasilkan narasi insight otomatis berbahasa Indonesia berdasarkan nilai
-hasil analisis (calculation.py). Ambang batas (threshold) yang dipakai
-mengacu pada kriteria operasional yang umum dipakai di analisis sinoptik
-(George 1960 untuk K-Index, kriteria Total Totals & Showalter Index umum,
-serta kriteria SWEAT Miller 1972). Karena beberapa ambang batas ini berbeda
-tipis antar referensi, kategorisasi di bawah bersifat estimasi operasional,
-bukan nilai baku tunggal.
-"""
-
 from __future__ import annotations
 
 
@@ -172,8 +161,6 @@ def insight_cuaca_buruk(sweat, dcape) -> str:
 
 
 def kesimpulan_umum(stab: dict, humid: dict, sweat, dcape) -> str:
-    """Ringkasan akhir + rekomendasi paragraf kedua, gaya bahasa mengikuti
-    contoh yang diberikan pengguna."""
     k = stab.get("k_index")
     tt = stab.get("total_totals")
     li = stab.get("lifted_index")
